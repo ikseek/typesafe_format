@@ -1,3 +1,8 @@
+/*
+* Typesafe printf-like wrapper around std streams
+* by Igor Kozyrenko, 2013
+*/
+
 #include "safeformat.h"
 
 #include <iostream>
