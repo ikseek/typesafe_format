@@ -20,8 +20,8 @@ template<>        struct no_pointers<const wchar_t*>{ enum { allowed = 1 }; };
 template<class T> struct no_pointers<T*>            { enum { allowed = 0 }; };
 
 // Static assert helper
-template<bool b> struct static_assert       {};
-template<>       struct static_assert<true> { enum { here }; };
+template<bool b> struct my_static_assert       {};
+template<>       struct my_static_assert<true> { enum { here }; };
 
 template <typename CT>
 struct Streamable {
@@ -33,7 +33,7 @@ template <typename CT, typename T>
 struct StreamableValue: public Streamable<CT> {
   StreamableValue(const T& val): val_(val) {
     // You can wrap pointer with typesafe_format::ptr to pass this check
-    (void)static_assert<no_pointers<T>::allowed>::here;
+    (void)my_static_assert<no_pointers<T>::allowed>::here;
   }
   void OutputToStream(std::basic_ostream<CT>& stream) const {
     stream<<val_;
@@ -67,6 +67,12 @@ inline std::basic_ostream<CT>& operator<<(std::basic_ostream<CT>& os,
 }
 
 // stream format overloads
+template <typename CT>
+std::basic_ostream<CT>& strmfmtl(
+    std::basic_ostream<CT>& os, const CT* fmt, size_t fmt_length) {
+  return os.write(fmt, fmt_length);
+}
+
 template <typename CT,
           typename T0>
 std::basic_ostream<CT>& strmfmtl(
@@ -255,6 +261,12 @@ std::basic_ostream<CT>& strmfmtl(
 /*
  * Stream format overloads
  * */
+template <typename CT>
+std::basic_ostream<CT>& strmfmt(
+    std::basic_ostream<CT>& os, const CT* fmt) {
+  return strmfmtl(os, fmt, impl::len(fmt));
+}
+
 template <typename CT,
           typename T0>
 std::basic_ostream<CT>& strmfmt(
